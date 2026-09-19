@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prediksi Penyakit & Rekomendasi Spesialis</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Cek Gejala &amp; Rekomendasi Dokter Spesialis</h1>
+    <p class="subtitle">Hasil prediksi bersifat informatif, bukan diagnosis medis resmi.</p>
+
+    <form id="predict-form">
+        <fieldset>
+            <legend>Data Pasien <span class="note">(pelengkap, tidak memengaruhi hasil prediksi ML)</span></legend>
+            <div class="grid">
+                <label>Umur (tahun)
+                    <input type="number" id="umur" min="0">
+                </label>
+                <label>Berat Badan (kg)
+                    <input type="number" id="bb" min="0">
+                </label>
+                <label>Tinggi Badan (cm)
+                    <input type="number" id="tb" min="0">
+                </label>
+                <label>Tekanan Darah
+                    <input type="text" id="tekanan_darah" placeholder="120/80">
+                </label>
+                <label>Durasi Sakit (hari)
+                    <input type="number" id="durasi" min="0">
+                </label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Pilih Gejala yang Dialami</legend>
+            <input type="text" id="search-symptom" placeholder="Cari gejala... (mis: batuk, demam)">
+            <div class="symptom-list" id="symptom-list">
+                {% for s in symptoms %}
+                <label class="symptom-item">
+                    <input type="checkbox" name="symptoms" value="{{ s.value }}">
+                    {{ s.label }}
+                </label>
+                {% endfor %}
+            </div>
+        </fieldset>
+
+        <button type="submit">Prediksi Sekarang</button>
+    </form>
+
+    <div id="result" class="result hidden"></div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

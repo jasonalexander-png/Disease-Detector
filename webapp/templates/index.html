@@ -3,53 +3,111 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prediksi Penyakit & Rekomendasi Spesialis</title>
+<title>Disease Detector — Skrining Gejala</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<div class="container">
-    <h1>Cek Gejala &amp; Rekomendasi Dokter Spesialis</h1>
-    <p class="subtitle">Hasil prediksi bersifat informatif, bukan diagnosis medis resmi.</p>
+<div class="page">
 
-    <form id="predict-form">
-        <fieldset>
-            <legend>Data Pasien <span class="note">(pelengkap, tidak memengaruhi hasil prediksi ML)</span></legend>
-            <div class="grid">
-                <label>Umur (tahun)
-                    <input type="number" id="umur" min="0">
-                </label>
-                <label>Berat Badan (kg)
-                    <input type="number" id="bb" min="0">
-                </label>
-                <label>Tinggi Badan (cm)
-                    <input type="number" id="tb" min="0">
-                </label>
-                <label>Tekanan Darah
-                    <input type="text" id="tekanan_darah" placeholder="120/80">
-                </label>
-                <label>Durasi Sakit (hari)
-                    <input type="number" id="durasi" min="0">
-                </label>
-            </div>
-        </fieldset>
+  <header class="app-header">
+    <div class="app-icon">+</div>
+    <div>
+      <h1>Disease Detector</h1>
+      <p class="subtitle">Skrining awal gejala &amp; arahan dokter spesialis</p>
+    </div>
+  </header>
 
-        <fieldset>
-            <legend>Pilih Gejala yang Dialami</legend>
-            <input type="text" id="search-symptom" placeholder="Cari gejala... (mis: batuk, demam)">
-            <div class="symptom-list" id="symptom-list">
-                {% for s in symptoms %}
-                <label class="symptom-item">
-                    <input type="checkbox" name="symptoms" value="{{ s.value }}">
-                    {{ s.label }}
-                </label>
-                {% endfor %}
-            </div>
-        </fieldset>
+  <div class="disclaimer">
+    <span class="disclaimer-icon">ⓘ</span>
+    <div>
+      <strong>Ini bukan diagnosis medis.</strong> Disease Detector adalah alat skrining awal untuk keperluan edukasi/portofolio. Hasilnya adalah kemungkinan berdasarkan pola gejala umum — selalu konsultasikan kondisi kamu ke dokter untuk diagnosis dan penanganan yang sesungguhnya.
+    </div>
+  </div>
 
-        <button type="submit">Prediksi Sekarang</button>
-    </form>
+  <form id="predict-form">
 
-    <div id="result" class="result hidden"></div>
+    <section class="card">
+      <h2>Sedikit data tambahan <span class="muted">(boleh dilewati)</span></h2>
+      <p class="muted small">Membantu tampilan terasa lebih lengkap — data ini tidak memengaruhi hasil prediksi ML.</p>
+
+      <div class="field-group">
+        <h3>Berat &amp; tinggi badan <span class="muted">(opsional)</span></h3>
+        <div class="grid-2">
+          <label>Berat badan (kg)
+            <input type="number" id="bb" min="0" placeholder="mis. 60">
+          </label>
+          <label>Tinggi badan (cm)
+            <input type="number" id="tb" min="0" placeholder="mis. 165">
+          </label>
+        </div>
+        <button type="button" class="pill pill-toggle" data-target="bb,tb">Tidak tahu / tidak mau menjawab</button>
+      </div>
+
+      <div class="field-group">
+        <h3>Umur <span class="muted">(opsional)</span></h3>
+        <label>Umur (tahun)
+          <input type="number" id="umur" min="0" placeholder="mis. 28">
+        </label>
+        <button type="button" class="pill pill-toggle" data-target="umur">Tidak tahu / tidak mau menjawab</button>
+      </div>
+
+      <div class="field-group">
+        <h3>Tekanan darah (tensi), kalau tahu</h3>
+        <div class="pill-group" id="tensi-group">
+          <button type="button" class="pill" data-value="Normal (kira-kira 120/80 atau lebih rendah)">Normal (≈120/80 atau lebih rendah)</button>
+          <button type="button" class="pill" data-value="Agak tinggi (120-139/80-89)">Agak tinggi (120–139/80–89)</button>
+          <button type="button" class="pill" data-value="Tinggi (140/90 ke atas)">Tinggi (140/90 ke atas)</button>
+          <button type="button" class="pill" data-value="Tidak tahu">Tidak tahu</button>
+          <button type="button" class="pill" data-value="Tidak mau jawab">Tidak mau jawab</button>
+        </div>
+        <input type="hidden" id="tekanan_darah">
+      </div>
+
+      <div class="field-group">
+        <h3>Sudah berapa lama merasakan gejala ini?</h3>
+        <div class="pill-group" id="durasi-group">
+          <button type="button" class="pill" data-value="Kurang dari 3 hari">Kurang dari 3 hari</button>
+          <button type="button" class="pill" data-value="3-7 hari">3–7 hari</button>
+          <button type="button" class="pill" data-value="1-4 minggu">1–4 minggu</button>
+          <button type="button" class="pill" data-value="Lebih dari 1 bulan">Lebih dari 1 bulan</button>
+          <button type="button" class="pill" data-value="Tidak tahu">Tidak tahu</button>
+          <button type="button" class="pill" data-value="Tidak mau jawab">Tidak mau jawab</button>
+        </div>
+        <input type="hidden" id="durasi_sakit">
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Pilih gejala yang kamu rasakan</h2>
+      <p class="muted small">Total {{ total_symptoms }} gejala tersedia, dikelompokkan per bagian tubuh. Ketik untuk mencari.</p>
+
+      <input type="text" id="search-symptom" placeholder="Cari gejala... (mis: batuk, demam, gatal)">
+
+      <div id="symptom-groups">
+        {% for category, items in categories %}
+        <details class="symptom-category" open data-category>
+          <summary>{{ category }} <span class="count">({{ items|length }})</span></summary>
+          <div class="symptom-list">
+            {% for s in items %}
+            <label class="symptom-item">
+              <input type="checkbox" name="symptoms" value="{{ s.value }}">
+              <span>{{ s.label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </details>
+        {% endfor %}
+      </div>
+    </section>
+
+  </form>
+
+  <div id="result" class="result hidden"></div>
+</div>
+
+<div class="sticky-bar">
+  <span id="selected-count">0 gejala dipilih</span>
+  <button type="submit" form="predict-form" id="submit-btn">Lihat Kemungkinan</button>
 </div>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>

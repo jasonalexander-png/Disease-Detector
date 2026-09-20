@@ -194,11 +194,15 @@ def index():
         total_symptoms=len(symptom_columns),
     )
 
+
 @app.route("/api/symptoms")
 def get_symptoms():
     """Endpoint terpisah kalau nanti frontend mau di-fetch via JS murni, bukan render Jinja"""
-    symptoms = sorted(symptom_columns)
-    return jsonify([{"value": s, "label": format_symptom_label(s)} for s in symptoms])
+    result = []
+    for s in sorted(symptom_columns):
+        label, category = get_symptom_info(s)
+        result.append({"value": s, "label": label, "category": category})
+    return jsonify(result)
 
 
 @app.route("/api/predict", methods=["POST"])
@@ -250,4 +254,5 @@ def predict():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)

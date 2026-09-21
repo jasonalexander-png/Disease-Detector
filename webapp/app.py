@@ -437,6 +437,12 @@ def predict():
     if not gejala_user:
         return jsonify({"error": "Gejala yang dikirim tidak dikenali sistem"}), 400
 
+    MIN_SYMPTOMS = 3
+    if len(gejala_user) < MIN_SYMPTOMS:
+        return jsonify({
+            "error": f"Pilih minimal {MIN_SYMPTOMS} gejala supaya hasil prediksi lebih bisa diandalkan. Gejala yang terlalu sedikit membuat sistem sulit membedakan antar penyakit."
+        }), 400
+
     input_vector = pd.DataFrame(
         [[1 if col in gejala_user else 0 for col in symptom_columns]],
         columns=symptom_columns
@@ -454,6 +460,11 @@ def predict():
         }
         for i in top3_idx
     ]
+
+    # ---- Confidence check ----
+    CONFIDENCE_THRESHOLD = 30.0  # persen
+    top1_confidence = top3[0]["probabilitas"]
+    low_confidence = top1_confidence < CONFIDENCE_THRESHOLD
 
     info_rows = lookup[lookup['disease_clean'] == pred_disease.strip().lower()]
     info_records = info_rows.drop(columns=['disease_clean'], errors='ignore').to_dict('records')
@@ -475,7 +486,13 @@ def predict():
         "prediksi_utama": pred_disease,
         "top3_kemungkinan": top3,
         "info_tambahan": info_clean,
-        "profil_user": profil
+        "profil_user": profil,
+        "low_confidence": low_confidence,
+        "confidence_message": (
+            "Gejala yang dipilih terlalu umum dan cocok dengan beberapa penyakit sekaligus, "
+            "sehingga hasil prediksi ini kurang meyakinkan. Coba tambahkan gejala lain yang lebih spesifik "
+            "untuk hasil yang lebih akurat."
+        ) if low_confidence else None
     })
 
 

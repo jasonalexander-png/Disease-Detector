@@ -86,6 +86,11 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
+  if (checked.length < 3) {
+    alert('Pilih minimal 3 gejala dulu ya, supaya hasil prediksi lebih bisa diandalkan.');
+    return;
+  }
+
   const payload = {
     symptoms: checked,
     profil: {
@@ -117,7 +122,14 @@ form.addEventListener('submit', async (e) => {
     const info = data.info_tambahan || {};
     const precautionKeys = Object.keys(info).filter(k => k.toLowerCase().includes('precaution'));
 
+    const warningHtml = data.low_confidence ? `
+      <div class="confidence-warning">
+        ⚠️ <strong>Hasil kurang meyakinkan.</strong> ${data.confidence_message}
+      </div>
+    ` : '';
+
     resultDiv.innerHTML = `
+      ${warningHtml}
       <h2>Kemungkinan: ${data.prediksi_utama}</h2>
       <p><strong>Spesialis disarankan:</strong> ${info.Specialist || '-'}</p>
       <p><strong>Deskripsi:</strong> ${info.Description || '-'}</p>

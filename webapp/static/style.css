@@ -221,6 +221,17 @@ input[type="number"]:disabled { opacity: 0.5; }
 .hidden { display: none; }
 .error { color: #dc2626; }
 
+.confidence-warning {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  color: var(--amber-text);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  font-size: 0.88rem;
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
+}
+
 /* ---------- Sticky bottom bar ---------- */
 .sticky-bar {
   position: fixed;

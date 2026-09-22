@@ -1,3 +1,10 @@
+// ---------- Cegah scroll (mouse wheel/touchpad) mengubah nilai input angka ----------
+document.querySelectorAll('input[type="number"]').forEach(input => {
+  input.addEventListener('wheel', (e) => {
+    input.blur();
+  }, { passive: true });
+});
+
 // ---------- Pill single-select groups (tekanan darah, durasi) ----------
 document.querySelectorAll('.pill-group').forEach(group => {
   const hiddenInputId = group.nextElementSibling && group.nextElementSibling.tagName === 'INPUT'
@@ -128,8 +135,22 @@ form.addEventListener('submit', async (e) => {
       </div>
     ` : '';
 
+    const severity = data.tingkat_keparahan || {};
+    const severityClass = {
+      'Tinggi': 'severity-high',
+      'Sedang': 'severity-medium',
+      'Ringan': 'severity-low'
+    }[severity.level] || 'severity-low';
+
+    const severityHtml = severity.level ? `
+      <div class="severity-badge ${severityClass}">
+        Tingkat keparahan gejala: <strong>${severity.level}</strong>
+      </div>
+    ` : '';
+
     resultDiv.innerHTML = `
       ${warningHtml}
+      ${severityHtml}
       <h2>Kemungkinan: ${data.prediksi_utama}</h2>
       <p><strong>Spesialis disarankan:</strong> ${info.Specialist || '-'}</p>
       <p><strong>Deskripsi:</strong> ${info.Description || '-'}</p>

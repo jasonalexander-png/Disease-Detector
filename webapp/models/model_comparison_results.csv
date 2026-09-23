@@ -1,5 +1,5 @@
 Model,Train Accuracy,Test Accuracy,F1-macro,Waktu(s)
-Random Forest,1.0,1.0,1.0,0.55
-Logistic Regression,1.0,1.0,1.0,0.22
-Naive Bayes,0.9877,0.9672,0.9545,0.02
+Random Forest,1.0,1.0,1.0,0.22
+Logistic Regression,1.0,1.0,1.0,0.04
+Naive Bayes,0.9877,0.9672,0.9545,0.0
 Decision Tree,1.0,0.6557,0.5699,0.01
